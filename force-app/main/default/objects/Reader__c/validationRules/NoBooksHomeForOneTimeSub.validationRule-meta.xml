@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>NoBooksHomeForOneTimeSub</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND(
+  ISPICKVAL(Subscription_Type__c, &apos;one-time&apos;),
+  Number_Of_Hold_Books__c &lt;&gt; 0)</errorConditionFormula>
+    <errorDisplayField>Number_Of_Hold_Books__c</errorDisplayField>
+    <errorMessage>Readers with one-time subscription are not allowed to take books home.</errorMessage>
+</ValidationRule>
