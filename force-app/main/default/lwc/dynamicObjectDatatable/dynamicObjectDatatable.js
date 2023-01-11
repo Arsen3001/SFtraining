@@ -1,42 +1,48 @@
-import { LightningElement, api, wire } from 'lwc';
-import readFieldSet from '@salesforce/apex/DynamicObjectDatatableController.readFieldSet';
-import getRecordFields from '@salesforce/apex/DynamicObjectDatatableController.getRecordFields';
+import { LightningElement, api, wire, track } from 'lwc';
+import getObjectFields from '@salesforce/apex/DynamicObjectDatatableController.getObjectFields';
+import getRecords from '@salesforce/apex/DynamicObjectDatatableController.getRecords';
+import searchRecords from '@salesforce/apex/DynamicObjectDatatableController.searchRecords';
 
 export default class DynamicObjectDatatable extends LightningElement {
-    listRecs;  
-    error;
-    recordsError;
-    columns;  
+    @track data;
+    @track listOfRecords;
+    @track error;
+    @track columns;  
  
     @api fields;
-    @api tableColumns;
     @api objectApiName;
-    @api recordPage;
+    
 
-    @wire(readFieldSet, {objectName: '$objectApiName'})
-    wiredFieldSet({ error, data }) {
+    @wire(getObjectFields, {objectName: '$objectApiName'})
+    async wiredFieldSet({ error, data }) {
         if (data) {
-            this.columns = data.filter((el)=> el.fieldName !== 'Id');       
+            this.columns = data.filter((el) => el.fieldName !== 'Id');       
             this.error = undefined;
-            console.log('data: ', data);
-            let fields = this.columns.map(x => x.fieldName);
-            console.log('fields: ', fields);
-            getRecordFields({listOfFields: fields, objectName: this.objectApiName})
-                .then(result => {
-                    this.listRecs = result;
-                    console.log('result: ', result);
-                })
-                .catch(recordsError => {
-                    this.recordsError = recordsError;
-                });
-            return fields;
+            let fields = this.columns.map(el => el.fieldName);
+            try {
+                this.listOfRecords = await getRecords({listOfFields: fields, objectName: this.objectApiName});                
+            } catch (recordsError) {
+                this.error = recordsError;
+            }
         } else if (error) {
             this.error = error;
             this.columns = undefined;
-            console.log('Error: ', error);
         }
-        return 'error: out of ifs';
     }
+
+    handleSearch(event) {
+        const key = event.target.value.toLowerCase();
+        let fields = this.columns.map(el => el.fieldName);
+       
+        searchRecords({searchKey: key, objectName: this.objectApiName, listOfFields: fields})
+            .then(result => {
+                this.listOfRecords = result;
+            })
+            .catch(searchError => {
+                this.error = searchError; 
+            });
+        }
+        
 }
     
     

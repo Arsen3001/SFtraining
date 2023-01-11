@@ -1,7 +1,28 @@
 <!-- sldsValidatorIgnore -->
 <template>
   <template if:true={listRecs}>
-    <lightning-card title={title}>
+    <lightning-card title="DataTable">
+      <lightning-layout multiple-rows>
+        <lightning-layout-item size="3" padding="around-small">
+          <lightning-input
+            type="search"
+            onchange={handleSearch}
+            class="slds-m-bottom_small"
+            variant="label-hidden"
+            placeholder="Search.."
+            label="Search"
+          >
+            <lightning-layout-item
+              size="6"
+              padding="around-small"
+            ></lightning-layout-item>
+            <lightning-layout-item
+              size="2"
+              padding="around-small"
+            ></lightning-layout-item>
+          </lightning-input>
+        </lightning-layout-item>
+      </lightning-layout>
       <lightning-datatable
         key-field="id"
         data={listRecs}
