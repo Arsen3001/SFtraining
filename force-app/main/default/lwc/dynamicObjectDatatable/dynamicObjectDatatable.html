@@ -1,7 +1,7 @@
 <!-- sldsValidatorIgnore -->
 <template>
-  <template if:true={listRecs}>
-    <lightning-card title="DataTable">
+  <template if:true={listOfRecords}>
+        <lightning-card title="DataTable">
       <lightning-layout multiple-rows>
         <lightning-layout-item size="3" padding="around-small">
           <lightning-input
@@ -25,7 +25,7 @@
       </lightning-layout>
       <lightning-datatable
         key-field="id"
-        data={listRecs}
+        data={listOfRecords}
         columns={columns}
         hide-checkbox-column="true"
         show-row-number-column="true"
@@ -33,5 +33,5 @@
       </lightning-datatable>
     </lightning-card>
   </template>
-  <template if:true={error}> {error} </template>
+  <template if:true={error}>{error}</template>
 </template>

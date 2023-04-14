@@ -7,20 +7,20 @@ export default class DynamicObjectDatatable extends LightningElement {
     @track data;
     @track listOfRecords;
     @track error;
-    @track columns;  
- 
+    @track columns;
+
     @api fields;
     @api objectApiName;
-    
 
-    @wire(getObjectFields, {objectName: '$objectApiName'})
+
+    @wire(getObjectFields, { objectName: '$objectApiName' })
     async wiredFieldSet({ error, data }) {
         if (data) {
-            this.columns = data.filter((el) => el.fieldName !== 'Id');       
+            this.columns = data.filter((el) => el.fieldName !== 'Id');
             this.error = undefined;
             let fields = this.columns.map(el => el.fieldName);
             try {
-                this.listOfRecords = await getRecords({listOfFields: fields, objectName: this.objectApiName});                
+                this.listOfRecords = await getRecords({ listOfFields: fields, objectName: this.objectApiName });
             } catch (recordsError) {
                 this.error = recordsError;
             }
@@ -33,16 +33,18 @@ export default class DynamicObjectDatatable extends LightningElement {
     handleSearch(event) {
         const key = event.target.value.toLowerCase();
         let fields = this.columns.map(el => el.fieldName);
-       
-        searchRecords({searchKey: key, objectName: this.objectApiName, listOfFields: fields})
+
+        searchRecords({ searchKey: key, objectName: this.objectApiName, listOfFields: fields })
             .then(result => {
                 this.listOfRecords = result;
+                console.log('result: ', result);
             })
             .catch(searchError => {
-                this.error = searchError; 
+                this.error = searchError;
+                console.log('error:', this.error);
             });
-        }
-        
+    }
+
 }
-    
-    
+
+

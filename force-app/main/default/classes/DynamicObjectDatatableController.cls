@@ -13,7 +13,6 @@ public with sharing class DynamicObjectDatatableController {
         Schema.FieldSet objFieldSet = describeSObjectResultObj.FieldSets.getMap().get(fieldSetName);
     
         if(objFieldSet != null) {
-            
             for(Schema.FieldSetMember member : objFieldSet.getFields()) {
                 listOfFields.add(buildColWrapper(member.getSObjectField()));
             }
@@ -56,56 +55,71 @@ public with sharing class DynamicObjectDatatableController {
     @AuraEnabled(cacheable=true)
     public static List<sObject> searchRecords(String searchKey, String objectName, List<String> listOfFields){
         try {
-            
             String fieldsString = String.join(listOfFields, ', ');
             String soqlStart = String.format('SELECT {0} FROM {1} WHERE ', new List<Object>{fieldsString, objectName});
             String soqlEnd = '';
 
+            // Map<String, Schema.SObjectField> fieldsMap = Schema.SObjectType.Reader__c.fields.getMap();
             
-            // Map<String, Schema.sObjectType> globalDescribeMap = Schema.getGlobalDescribe();                      // from above
-            // Schema.sObjectType sobjType = globalDescribeMap.get(objectName);
-            // Schema.DescribeSObjectResult describeSObjectResultObj = sobjType.getDescribe();
-            // Schema.FieldSet objFieldSet = describeSObjectResultObj.FieldSets.getMap().get(fieldSetName);
+            
+            Boolean SearchKeyIsInteger = false;
+            try{
+                Integer searchKeyInt = Integer.valueOf(searchKey);
+                SearchKeyIsInteger = true;
+                    // for(String el : listOfFields) {
+                    //     if(listOfFields.indexOf(el) < listOfFields.size() - 1) {
+                    //         soqlEnd += '' + el + ' LIKE \'%' + searchKeyInt + '%\' OR ';
+                    //     } else {
+                    //         soqlEnd += '' + el + ' LIKE \'%' + searchKeyInt + '%\'';
+                    //     }   
+                    // }
+            }catch(Exception SearchKeyIntegerEx){
+                SearchKeyIsInteger = false;
+            }
 
-            Map<String, Schema.SObjectField> m = Schema.SObjectType.Reader__c.fields.getMap();
-            
-            
-            // Map<String,Schema.SObjectType> globalDescribeMap = Schema.getGlobalDescribe();                       //copy of the above
-            // Schema.SObjectType sobjType = globalDescribeMap.get('Reader__c');
-            // Schema.DescribeSObjectResult describeResult = sobjType.getDescribe();
-            // Schema.DisplayType FldType = describeResult.getType();
-            
-            // System.debug('m: ' + m);
-            // System.debug('field: ' + field);
-            // System.debug('fieldType: ' + fldType);
-
-            // System.debug('global describe: ' + gd);
-            // System.debug('sobjType: ' + sobjType); 
-            // System.debug('describeResult: ' + describeResult);
-
+            List<String> listOfNumberFields = new List<String>();
+            List<String> listOfStringFields = new List<String>();
             System.debug('listOfFields: ' + listOfFields);
-            // Schema.DisplayType FldType = Name.getDescribe().getType();
-
             for(String el : listOfFields) {
-                Schema.SObjectField field = m.get(el);
-                Schema.DisplayType fldType = field.getDescribe().getType();
-                // if(field)
 
-                if(listOfFields.indexOf(el) < listOfFields.size() - 1) {
-                    soqlEnd += '' + el + ' LIKE \'%' + searchKey + '%\' OR ';
-                } else {
-                    soqlEnd += '' + el + ' LIKE \'%' + searchKey + '%\'';
-                }
+                System.debug('el: ' + el);
+            System.debug('method: ' + getFieldType(el));
+
+                // String fieldType = String.valueOf(getFieldType(el));
+
+                // String.valueOf(getFieldType(el));
+                // if(SearchKeyIsInteger && fieldType == 'Integer') {
+                //     listOfNumberFields.add(el);
+                //     listOfFields = listOfNumberFields;
+                //     System.debug('SearchKeyIsInteger: ' + listOfNumberFields);
+                // } else {
+                //     if(listOfFields.indexOf(el) < listOfFields.size() - 1) {
+                //         soqlEnd += '' + el + ' LIKE \'%' + searchKey + '%\' OR ';
+                //     } else {
+                //         soqlEnd += '' + el + ' LIKE \'%' + searchKey + '%\'';
+                //     }
+                // }
+
             }
             String fullQuery = soqlStart + soqlEnd;
+            // System.debug('startQuery: ' + soqlStart);
+            // System.debug('endQuery: ' + soqlEnd);
+            // System.debug('query: ' + fullQuery);
 
             List<sObject> searchResult = Database.query(fullQuery);
-            
-            return searchResult;                                                         
+            // System.debug('searchResult: ' + searchResult);
+            return searchResult;                                              
         } 
         catch (Exception e) {
             throw new AuraHandledException(e.getMessage());
         }
+    }
+
+    public static Schema.DisplayType getFieldType(String fieldName) {
+        Map<String, Schema.SObjectField> fieldMap = Schema.SObjectType.Account.fields.getMap();
+        Schema.DisplayType fieldType = fieldMap.get(fieldName).getDescribe().getType();
+        System.debug('fieldType: ' + fieldType);
+        return fieldType;
     }
 
 }
