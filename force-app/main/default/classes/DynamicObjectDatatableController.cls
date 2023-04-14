@@ -122,4 +122,6 @@ public with sharing class DynamicObjectDatatableController {
         return fieldType;
     }
 
+    //added for test
+
 }
